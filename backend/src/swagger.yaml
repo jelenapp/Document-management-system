@@ -1,0 +1,1143 @@
+openapi: 3.0.3
+info:
+  title: Collaborative Editor Backend API
+  version: 1.0.0
+servers:
+  - url: http://localhost:{port}
+    variables:
+      port:
+        default: "5000"
+
+tags:
+  - name: Users
+  - name: Directories
+  - name: Files
+  - name: Comments
+  - name: Reactions
+  - name: Organizations
+
+paths:
+  /:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /users:
+    get:
+      tags: [Users]
+      summary: Get all users
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersResponse"
+
+  /users/create:
+    post:
+      tags: [Users]
+      summary: Create new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewUser"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "400":
+          description: Bad request
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: User not found
+
+  /users/{id}/delete:
+    delete:
+      tags: [Users]
+      summary: Delete user
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: User not found
+
+  /users/email/{email}:
+    get:
+      tags: [Users]
+      summary: Get user by email
+      parameters:
+        - $ref: "#/components/parameters/Email"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: User not found
+
+  /users/verificationToken/{verificationToken}:
+    get:
+      tags: [Users]
+      summary: Get user by verification token
+      parameters:
+        - $ref: "#/components/parameters/VerificationToken"
+      responses:
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: User not found
+
+  /users/verify/{verificationToken}:
+    get:
+      tags: [Users]
+      summary: Verify user
+      parameters:
+        - $ref: "#/components/parameters/VerificationToken"
+      responses:
+        "200":
+          description: User verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "404":
+          description: Invalid or expired token
+
+  /directories/create:
+    post:
+      tags: [Directories]
+      summary: Create directory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewDirectory"
+      responses:
+        "201":
+          description: Directory created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoryResponse"
+        "400":
+          description: Bad request
+
+  /directories/{id}/delete:
+    delete:
+      tags: [Directories]
+      summary: Delete directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Directory deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoryResponse"
+
+  /directories/{userId}/unstructured:
+    get:
+      tags: [Directories]
+      summary: Get user directories (flat)
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: List of directories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoriesResponse"
+        "404":
+          description: User not found
+
+  /directories/{userId}/structured:
+    get:
+      tags: [Directories]
+      summary: Get user directories (structured)
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Structured directory tree
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoriesResponse"
+        "404":
+          description: User not found
+
+  /directories/{id}/children&files:
+    get:
+      tags: [Directories]
+      summary: Get directory with children and files
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Directory details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoryResponse"
+        "404":
+          description: Directory not found
+
+  /directories/{id}/files:
+    get:
+      tags: [Directories]
+      summary: Get files in directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: List of files
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FilesResponse"
+        "404":
+          description: Directory not found
+
+  /directories/{userId}/root:
+    get:
+      tags: [Directories]
+      summary: Get user root directories
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: List of root directories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DirectoriesResponse"
+        "404":
+          description: User not found
+
+  /directories/{id}/addChildren:
+    put:
+      tags: [Directories]
+      summary: Add children to directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Directory not found
+
+  /directories/{id}/removeChildren:
+    put:
+      tags: [Directories]
+      summary: Remove children from directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Directory not found
+
+  /directories/{id}/addFiles:
+    put:
+      tags: [Directories]
+      summary: Add files to directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FilesAdmission"
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Directory not found
+
+  /directories/{id}/removeFiles:
+    put:
+      tags: [Directories]
+      summary: Remove files from directory
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FilesAdmission"
+      responses:
+        "204":
+          description: Success
+        "404":
+          description: Directory not found
+
+  /files/create:
+    post:
+      tags: [Files]
+      summary: Create file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewFile"
+      responses:
+        "200":
+          description: File created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "400":
+          description: Bad request
+
+  /files/{id}:
+    get:
+      tags: [Files]
+      summary: Get file by ID
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: File found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "404":
+          description: File not found
+
+  /files/{id}/delete:
+    delete:
+      tags: [Files]
+      summary: Delete file
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: File deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+        "400":
+          description: File not found
+
+  /files/{id}/state:
+    get:
+      tags: [Files]
+      summary: Get file Y.js state
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Binary file state
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: File not found
+    post:
+      tags: [Files]
+      summary: Update file Y.js state
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "200":
+          description: Snapshot saved
+        "400":
+          description: Invalid body
+        "404":
+          description: File not found
+
+  /files/{id}/comments:
+    get:
+      tags: [Files]
+      summary: Get comments for file
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: List of comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentsResponse"
+        "404":
+          description: File not found
+
+  /comments/create:
+    post:
+      tags: [Comments]
+      summary: Create comment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewComment"
+      responses:
+        "201":
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "404":
+          description: User or File not found
+
+  /comments/{id}:
+    get:
+      tags: [Comments]
+      summary: Get comment by ID
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Comment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "404":
+          description: Comment not found
+
+  /comments/{id}/reactions:
+    get:
+      tags: [Comments]
+      summary: Get reactions for comment
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: List of reactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionsResponse"
+        "404":
+          description: Comment not found
+
+  /comments/{id}/update:
+    put:
+      tags: [Comments]
+      summary: Update comment content
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentUpdate"
+      responses:
+        "200":
+          description: Comment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "404":
+          description: Comment not found
+
+  /comments/{id}/delete:
+    delete:
+      tags: [Comments]
+      summary: Delete comment
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Comment deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentResponse"
+        "404":
+          description: Comment not found
+
+  /reactions/createOrUpdate:
+    put:
+      tags: [Reactions]
+      summary: Create or update reaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewReaction"
+      responses:
+        "200":
+          description: Reaction updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionUpdateResponse"
+        "201":
+          description: Reaction created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionUpdateResponse"
+        "400":
+          description: Bad request
+
+  /reactions/{id}:
+    get:
+      tags: [Reactions]
+      summary: Get reaction by ID
+      parameters:
+        - $ref: "#/components/parameters/ReactionIdPath"
+      responses:
+        "200":
+          description: Reaction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionResponse"
+        "404":
+          description: Reaction not found
+
+  /reactions/comment/{commentId}/user/{userId}:
+    get:
+      tags: [Reactions]
+      summary: Get reaction by comment and user
+      parameters:
+        - $ref: "#/components/parameters/CommentIdPath"
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Reaction found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionResponse"
+        "404":
+          description: Reaction not found
+
+  /reactions/{id}/delete:
+    delete:
+      tags: [Reactions]
+      summary: Delete reaction
+      parameters:
+        - $ref: "#/components/parameters/ReactionIdPath"
+      responses:
+        "200":
+          description: Reaction deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReactionResponse"
+        "404":
+          description: Reaction not found
+
+  /organizations/name/{name}:
+    get:
+      tags: [Organizations]
+      summary: Get organization by name
+      parameters:
+        - $ref: "#/components/parameters/Name"
+      responses:
+        "200":
+          description: Organization found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Organization not found
+
+  /organizations/{id}:
+    get:
+      tags: [Organizations]
+      summary: Get organization by ID
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Organization found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Organization not found
+
+  /organizations/create:
+    post:
+      tags: [Organizations]
+      summary: Create organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/INewOrganization"
+      responses:
+        "201":
+          description: Organization created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "400":
+          description: Bad request
+
+  /organizations/{id}/addChildren/:
+    put:
+      tags: [Organizations]
+      summary: Add children to organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "400":
+          description: Bad request
+
+  /organizations/{id}/removeChildren/:
+    put:
+      tags: [Organizations]
+      summary: Remove children from organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Not found
+
+  /organizations/{id}/addMembers/:
+    put:
+      tags: [Organizations]
+      summary: Add members to organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MembersAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "400":
+          description: Bad request
+
+  /organizations/{id}/removeMembers/:
+    put:
+      tags: [Organizations]
+      summary: Remove members from organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MembersAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Not found
+
+  /organizations/{id}/addProjections/:
+    put:
+      tags: [Organizations]
+      summary: Add projections to organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Not found
+
+  /organizations/{id}/removeProjections/:
+    put:
+      tags: [Organizations]
+      summary: Remove projections from organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChildrenAdmission"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Not found
+
+  /organizations/{id}/delete/userId/{userId}:
+    delete:
+      tags: [Organizations]
+      summary: Delete organization
+      parameters:
+        - $ref: "#/components/parameters/Id"
+        - $ref: "#/components/parameters/UserIdPath"
+      responses:
+        "200":
+          description: Organization deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+        "404":
+          description: Organization not found
+
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+    Email:
+      name: email
+      in: path
+      required: true
+      schema:
+        type: string
+    VerificationToken:
+      name: verificationToken
+      in: path
+      required: true
+      schema:
+        type: string
+    ReactionIdPath:
+      name: reactionId
+      in: path
+      required: true
+      schema:
+        type: string
+    CommentIdPath:
+      name: commentId
+      in: path
+      required: true
+      schema:
+        type: string
+    Name:
+      name: name
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    # Creation templates (INew interfaces)
+    INewUser:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    INewDirectory:
+      type: object
+      required: [name, owner]
+      properties:
+        name:
+          type: string
+        owner:
+          type: string
+        parents:
+          type: array
+          items:
+            type: string
+    INewFile:
+      type: object
+      required: [name, owner, parent]
+      properties:
+        name:
+          type: string
+        owner:
+          type: string
+        parent:
+          type: string
+    INewComment:
+      type: object
+      required: [commenterId, fileId, content]
+      properties:
+        commenterId:
+          type: string
+        fileId:
+          type: string
+        content:
+          type: string
+    INewReaction:
+      type: object
+      required: [commentId, reactionType, reactorId]
+      properties:
+        commentId:
+          type: string
+        reactionType:
+          type: string
+        reactorId:
+          type: string
+    INewOrganization:
+      type: object
+      required: [name, organizer]
+      properties:
+        name:
+          type: string
+        organizer:
+          type: string
+
+    # View models (PlainResource/View types)
+    UserView:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+    DirectoryView:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        children:
+          type: array
+          items:
+            type: string
+        files:
+          type: array
+          items:
+            type: string
+    FileView:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        comments:
+          type: array
+          items:
+            type: string
+        version:
+          type: number
+    CommentView:
+      type: object
+      properties:
+        id:
+          type: string
+        commenter:
+          type: string
+        content:
+          type: string
+        edited:
+          type: boolean
+        reactions:
+          type: array
+          items:
+            type: string
+    ReactionView:
+      type: object
+      properties:
+        id:
+          type: string
+        comment:
+          type: string
+        reactionType:
+          type: string
+        reactor:
+          type: string
+    OrganizationView:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        organizer:
+          type: string
+        children:
+          type: array
+          items:
+            type: string
+        projections:
+          type: array
+          items:
+            type: string
+
+    # Update/Input objects
+    ChildrenAdmission:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            type: string
+    FilesAdmission:
+      type: object
+      properties:
+        files:
+          type: array
+          items:
+            type: string
+    MembersAdmission:
+      type: object
+      properties:
+        members:
+          type: array
+          items:
+            type: string
+    CommentUpdate:
+      type: object
+      required: [id, content]
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+
+    # Response Wrappers
+    UserResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/UserView"
+        message:
+          type: string
+    UsersResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserView"
+    DirectoryResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/DirectoryView"
+        message:
+          type: string
+    DirectoriesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DirectoryView"
+    FileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/FileView"
+        message:
+          type: string
+    FilesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileView"
+    CommentResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/CommentView"
+        message:
+          type: string
+    CommentsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommentView"
+    ReactionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/ReactionView"
+        message:
+          type: string
+    ReactionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReactionView"
+    ReactionUpdateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            updated:
+              type: boolean
+            reaction:
+              $ref: "#/components/schemas/ReactionView"
+    OrganizationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: "#/components/schemas/OrganizationView"
+        message:
+          type: string
