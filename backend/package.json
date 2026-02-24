@@ -27,13 +27,13 @@
   "version": "1.0.0",
   "main": "app.ts",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
+    "dev": "nodemon --watch src --ext ts,json --exec ts-node src/app.ts",
 
     "docker-build": "docker build -t cfs-backend-img .",
     "docker-dev": "docker compose -f docker-compose.dev.yml up --build --watch",
     "docker-dev:down": "docker compose down",
 
-    "start": "node ./dist/app.js",
+    "start": "node ./dist/app.js"
   },
   "keywords": [],
   "author": "",
