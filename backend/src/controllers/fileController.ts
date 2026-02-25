@@ -193,7 +193,7 @@ export async function updateFileState(req: Request, res: Response, next: NextFun
 
         if (result)
             res.status(200).json({
-                success: false,
+                success: true,
                 message: 'Snapshot saved'
             });
         else
