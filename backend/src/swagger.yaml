@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Collaborative Editor Backend API
+  title: Collab File System Backend API
   version: 1.0.0
 servers:
   - url: http://localhost:{port}

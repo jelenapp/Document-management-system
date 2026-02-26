@@ -14,7 +14,7 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   try {
     const info = await transporter.sendMail({
-      from: `"RTC App" <${EMAIL_USER}>`,
+      from: `"Collab File System App" <${EMAIL_USER}>`,
       to: email,
       subject: "Verify your email",
       html: `
@@ -28,6 +28,6 @@ export async function sendVerificationEmail(email: string, token: string) {
     console.log("Verification email sent:", info);
   } catch (error) {
     console.error("Error sending email via Gmail SMTP:", error);
-    throw new Error("Email nije mogao biti poslat.");
+    throw new Error("Email nije moguce poslati.");
   }
 }

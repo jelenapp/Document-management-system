@@ -38,7 +38,7 @@ app.use('/organizations', organizationRouter);
 
 app.get('/',
     (req: express.Request, res: express.Response) => {
-        res.send('Collaborative Editor Backend is running...');
+        res.send('Collab File System Backend is running...');
     }
 );
 
