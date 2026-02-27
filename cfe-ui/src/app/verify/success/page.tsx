@@ -7,7 +7,7 @@ export default function VerifySuccessPage() {
   const router = useRouter();
 
   useEffect(() => {
-    alert("Email je uspešno verifikovan! Možete se sada prijaviti.");
+    alert("E-mail je uspešno verifikovan! Možete se sada prijaviti.");
     router.push("/"); 
   }, []);
 

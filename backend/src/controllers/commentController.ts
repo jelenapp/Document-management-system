@@ -18,7 +18,7 @@ export async function createComment (req: Request, res: Response, next: NextFunc
         const result: CommentView | Error = await cs.createComment(bodyObj);
 
         if (!(result instanceof Error))
-                res.status(201).json({
+            res.status(201).json({
                 success: true,
                 data: result,
             });
@@ -93,12 +93,12 @@ export async function deleteComment (req: Request, res: Response, next: NextFunc
     try{
         const data: {id: string} = matchedData(req);
 
-        const result: CommentView | null = await cs.deleteComment(data.id);
+        const result: string | null = await cs.deleteComment(data.id);
 
         if (result != null)
             res.status(200).json({
                 success: true,
-                data: result,
+                message: `Comment #${result} deleted successfully.`,
             });
         else
             res.status(404).json({

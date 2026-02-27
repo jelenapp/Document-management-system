@@ -112,22 +112,59 @@ function FileItem({ node, onRefresh, onSelectFile }: FileItemProps & { onSelectF
   };
 
   return (
-    <div className="pl-2">
-      <div className="flex items-center gap-2 py-1 hover:bg-blue-400 rounded cursor-pointer justify-between">
-        <div className="flex items-center gap-2" onClick={handleClick}>
-          {isDirectory ? (open ? <FolderOpen size={16} /> : <Folder size={16} />) : <FileText size={16} />}
-          {node.name}
+    <div className="pl-1">
+      <div 
+        className={`flex items-center gap-2 py-1.5 px-2 rounded-lg cursor-pointer transition-colors group ${
+          isDirectory ? 'hover:bg-slate-800' : 'hover:bg-blue-500/10'
+        }`}
+      >
+        <div className="flex flex-1 items-center gap-2.5 min-w-0" onClick={handleClick}>
+          <div className="text-slate-400 group-hover:text-blue-400 transition-colors">
+            {isDirectory ? (
+              open ? <FolderOpen size={16} fill="currentColor" className="fill-blue-500/20" /> : <Folder size={16} fill="currentColor" className="fill-slate-500/20" />
+            ) : (
+              <FileText size={16} />
+            )}
+          </div>
+          <span 
+            className="truncate text-slate-300 group-hover:text-white transition-colors"
+            title={node.name}
+          >
+            {node.name}
+          </span>
         </div>
 
-        <div className="flex gap-2 pr-2">
-          {isDirectory && <FolderPlus size={16} onClick={handleAddFolder} className="hover:text-green-500 cursor-pointer" />}
-          {isDirectory && <FilePlus size={16} onClick={handleAddFile} className="hover:text-blue-500 cursor-pointer" />}
-          <Trash2 size={16} onClick={handleDelete} className="hover:text-red-500 cursor-pointer" />
+        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          {isDirectory && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleAddFolder(); }}
+              className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-green-400 transition-colors"
+              title="New Folder"
+            >
+              <FolderPlus size={14} />
+            </button>
+          )}
+          {isDirectory && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); handleAddFile(); }}
+              className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-blue-400 transition-colors"
+              title="New File"
+            >
+              <FilePlus size={14} />
+            </button>
+          )}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+            className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-red-400 transition-colors"
+            title="Delete"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
 
       {open && items && (
-        <div className="pl-4">
+        <div className="ml-3.5 pl-3 border-l border-slate-800 mt-0.5 space-y-0.5">
           {items.map((child) => (
             <FileItem key={child.id} node={child} onRefresh={fetchChildren} onSelectFile={onSelectFile} />
           ))}
@@ -178,7 +215,10 @@ export default function FileExplorer({ onSelectFile }: { onSelectFile?: (id: str
   if (!root) return <p>Loading root directory...</p>;
 
   return (
-    <div className="w-full h-full text-sm font-mono overflow-y-auto p-2">
+    <div className="w-full h-full text-[13px] overflow-y-auto p-3 custom-scrollbar">
+      <div className="mb-2 px-1 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+        Workspace
+      </div>
       <FileItem node={root} onSelectFile={onSelectFile} />
     </div>
   );

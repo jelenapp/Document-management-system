@@ -2,27 +2,48 @@ import {INewReaction, IReaction} from "../data/interfaces/IReaction";
 import Reaction from "../data/dao/ReactionSchema";
 import Comment from "../data/dao/CommentSchema";
 import {IComment} from "../data/interfaces/IComment";
+import {ReactionView, toReactionVew} from "../data/types/ReactionView";
+import {toUserView, UserView} from "../data/types/UserView";
+import {IUser} from "../data/interfaces/IUser";
 
 
-export async function getReactionById(reactionId: string): Promise<IReaction | null> {
-    return await Reaction.findById(reactionId).exec();
+export async function getReactionById(reactionId: string): Promise<ReactionView | null> {
+    const reaction: IReaction | null = await Reaction.findById(reactionId)
+                                                        .populate("reactor")
+                                                        .exec();
+
+    return reaction != null ? {
+        ...reaction,
+        reactor: toUserView(reaction.reactor as unknown as IUser)
+    } as ReactionView : null
 }
 
-export async function getReactionByCommentAndUser(userId: string, commentId: string): Promise<IReaction | null> {
-    return await Reaction.findOne({reactor: userId, comment: commentId}).exec();
+export async function getReactionByCommentAndUser(userId: string, commentId: string): Promise<ReactionView | null> {
+    const reaction: IReaction | null = await Reaction.findOne({
+        reactor: userId,
+        comment: commentId
+    })
+    .populate("reactor")
+    .exec();
+
+    return reaction != null ? toReactionVew(reaction) : null
 }
 
 export async function createOrUpdateReaction(reaction: INewReaction) {
 
-    const r = await getReactionByCommentAndUser(reaction.reactorId, reaction.commentId);
+    const r: IReaction | null = await Reaction.findOne({
+        reactor: reaction.reactor,
+        comment: reaction.comment
+    })
+    .populate("reactor")
+    .exec();
 
-    if (r != null)
-        return { updated: true, reaction: await updateReaction(r, reaction.reactionType)};
-    else
-        return { updated: false, reaction: await createNewReaction(reaction)};
+    return r != null ?
+        { updated: true, reaction: await updateReaction(r, reaction.reactionType)} :
+        { updated: false, reaction: await createNewReaction(reaction)};
 }
 
-export async function createNewReaction(reaction: INewReaction): Promise<IReaction> {
+export async function createNewReaction(reaction: INewReaction): Promise<ReactionView> {
 
     const newReaction: IReaction = await Reaction.create(reaction);
     await newReaction.populate('comment');
@@ -31,15 +52,27 @@ export async function createNewReaction(reaction: INewReaction): Promise<IReacti
         comment.reactions.push(newReaction._id);
         await comment.save();
     }
+
+    await newReaction.populate('reactor');
+
+    const view = toReactionVew(newReaction);
+
     newReaction.depopulate('comment');
-    return newReaction;
+
+    return view;
 }
 
-export async function updateReaction(reaction: IReaction, newReactionType: string): Promise<IReaction | null> {
+export async function updateReaction(reaction: IReaction, newReactionType: string): Promise<ReactionView | null> {
     reaction.reactionType = newReactionType;
-    return await Reaction.findByIdAndUpdate(reaction._id, reaction, {new: true}).exec();
+    const r =  await Reaction.findByIdAndUpdate(reaction._id, reaction, {new: true})
+        .populate("reactor")
+        .exec();
+
+    return r != null ? toReactionVew(r) : null
 }
 
-export async function deleteReaction(reactionId: string): Promise<IReaction | null> {
-    return await Reaction.findByIdAndDelete(reactionId).exec();
+export async function deleteReaction(reactionId: string): Promise<ReactionView | null> {
+    const r = await Reaction.findByIdAndDelete(reactionId).exec();
+
+    return r != null ? toReactionVew(r) : null
 }

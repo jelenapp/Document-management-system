@@ -75,76 +75,89 @@ export default function LoginForm() {
   };
 
   return (
-  <div className="flex items-center justify-center min-h-screen bg-[#0f172a] px-4">
-    <div className="w-full max-w-md bg-[#1e293b] shadow-xl rounded-xl p-8 border border-[#334155]">
-      {isLoading ? (
-        <div className="flex justify-center items-center h-40">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <>
-          <h1 className="text-2xl font-semibold text-white mb-6 text-center">
-            Ulogujte se
-          </h1>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
+      <div className="w-full max-w-md bg-slate-800/50 backdrop-blur-xl shadow-2xl rounded-2xl p-8 border border-slate-700/50">
+        {isLoading ? (
+          <div className="flex flex-col justify-center items-center h-64 gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-slate-400 animate-pulse">Prijavljivanje...</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Dobrodošli nazad
+              </h1>
+              <p className="text-slate-400">Ulogujte se u svoj nalog</p>
+            </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="text"
-              placeholder="Email"
-              className="px-4 py-3 rounded-md bg-[#0f172a] text-white placeholder-gray-400 border border-[#334155] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-            />
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-300 ml-1">Email</label>
+                <input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  type="email"
+                  placeholder="name@example.com"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-900/50 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  required
+                />
+              </div>
 
-            <div className="relative">
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                type={showPassword ? "text" : "password"}
-                placeholder="Šifra"
-                className="w-full px-4 py-3 pr-10 rounded-md bg-[#0f172a] text-white placeholder-gray-400 border border-[#334155] focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-              />
-              <div
-                className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-400"
-                onClick={() => setShowPassword((prev) => !prev)}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-300 ml-1">Šifra</label>
+                <div className="relative">
+                  <input
+                    onChange={(e) => setPassword(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 pr-11 rounded-xl bg-slate-900/50 text-white placeholder-slate-500 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="mt-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-900/20 transition-all duration-200 active:scale-[0.98]"
               >
-                {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                Prijavi se
+              </button>
+
+              {error && (
+                <div className="bg-red-500/10 text-red-400 text-sm py-3 px-4 rounded-xl border border-red-500/20 animate-in fade-in slide-in-from-top-1">
+                  <div className="font-medium">{error}</div>
+                  {showSendEmailLink && (
+                    <div className="mt-2">
+                      <button
+                        type="button"
+                        onClick={handleResendVerification}
+                        className="text-blue-400 hover:text-blue-300 underline underline-offset-4 transition-colors"
+                      >
+                        Pošalji ponovo verifikacioni mejl
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="text-sm text-center text-slate-400 mt-2">
+                Nemate nalog?{" "}
+                <Link href="/register" prefetch={true} className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                  Registrujte se
+                </Link>
               </div>
-            </div>
-
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition duration-200"
-            >
-              Prijavi se
-            </button>
-
-            {error && (
-              <div className="bg-red-500/10 text-red-400 text-sm py-2 px-4 rounded-md border border-red-400/30">
-                <div>{error}</div>
-                {showSendEmailLink && (
-                  <div className="text-sm mt-2 text-red-400">
-                    <button
-                      type="button"
-                      onClick={handleResendVerification}
-                      className="text-blue-400 hover:underline ml-2"
-                    >
-                      Pošalji ponovo verifikacioni mejl
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="text-sm text-center text-gray-400 mt-4">
-              Nemate nalog?{" "}
-              <Link href="/register" prefetch={true} className="text-blue-400 hover:underline">
-                Registrujte se
-              </Link>
-            </div>
-          </form>
-        </>
-      )}
+            </form>
+          </>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }

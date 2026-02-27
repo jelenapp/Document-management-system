@@ -3,6 +3,8 @@ import Directory from "../data/dao/DirectorySchema";
 import {IFile, IFilePopulated, INewFile} from "../data/interfaces/IFile";
 import {IDirectory} from "../data/interfaces/IDirectory";
 import {IComment} from "../data/interfaces/IComment";
+import {CommentView} from "../data/types/CommentView";
+import {getAllReactionsForComment} from "./commentService";
 
 
 export async function createFile (file: INewFile): Promise<IFile | null> {
@@ -41,7 +43,7 @@ export async function getFileById(fileId: string): Promise<IFile | null> {
         .exec();
 }
 
-export async function getCommentsForFile(fileId: string): Promise<Array<IComment> | null> {
+export async function getCommentsForFile(fileId: string): Promise<Array<CommentView> | null> {
 
     const file = await File.findById(fileId)
     .populate({
@@ -50,8 +52,23 @@ export async function getCommentsForFile(fileId: string): Promise<Array<IComment
     })
     .exec() as IFilePopulated | null;
 
-    if (file != null)
-        return file.comments;
+    if (file != null){
+
+        const views: CommentView[] = [];
+
+        for (const comment of file.comments) {
+            const reactions = await getAllReactionsForComment(comment.id);
+                views.push( {
+                    id: comment.id,
+                    edited: comment.edited,
+                    content: comment.content,
+                    commenter: comment.commenter as unknown as string,
+                    reactions: reactions
+                }  as CommentView
+            );
+        }
+        return views;
+    }
     else
         return null;
 }

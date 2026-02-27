@@ -45,9 +45,9 @@ export async function getReactionById(req: Request, res: Response, next: NextFun
         return;
 
     try {
-        const data: { reactionId: string } = matchedData(req);
+        const data: { id: string } = matchedData(req);
 
-        const result: ReactionView | null  = await rs.getReactionById(data.reactionId);
+        const result: ReactionView | null  = await rs.getReactionById(data.id);
 
         if (result != null)
             res.status(200).json({
@@ -97,9 +97,9 @@ export async function deleteReaction(req: Request, res: Response, next: NextFunc
         return;
 
     try {
-        const data: { reactionId: string } = matchedData(req);
+        const data: { id: string } = matchedData(req);
 
-        const result: ReactionView | null = await rs.deleteReaction(data.reactionId);
+        const result: ReactionView | null = await rs.deleteReaction(data.id);
 
         if (result != null)
             res.status(200).json({

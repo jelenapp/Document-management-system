@@ -40,10 +40,11 @@ body {
 .content-wrapper {
   height: calc(100% - var(--tt-toolbar-height));
   overflow-y: auto;
+  background-color: #020617; /* slate-950 */
 
   &::-webkit-scrollbar {
     display: block;
-    width: 0.5rem;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -68,6 +69,13 @@ body {
 
 .simple-editor-content .tiptap.ProseMirror {
   padding: 3rem 3rem;
+  background-color: #0f172a; /* slate-900 */
+  border-radius: 8px;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  min-height: calc(100vh - 10rem);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border: 1px solid #1e293b; /* slate-800 */
 }
 
 @media screen and (max-width: 480px) {
