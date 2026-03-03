@@ -188,7 +188,7 @@ function CommentItem({
                          onDelete,
                          onReact,
                      }: {
-    myUserId: string | undefined,
+    myUserId: string,
     comment: CommentDto;
     user: User;
     onUpdate: (id: string, content: string) => void;
@@ -231,10 +231,9 @@ function CommentItem({
     // }, {} as Record<string, string[]>);
 
 
-    for(const reaction of comment.reactions || []) {
-
-        console.log(reaction);
-        if(reaction.reactor.id == myUserId) {
+    for (const reaction of comment.reactions || []) {
+        
+        if (reaction.reactor.id == myUserId) {
             myReaction = reaction.reactionType;
             break;
         }
@@ -244,8 +243,6 @@ function CommentItem({
         }
     }
 
-    console.log(firstEmoji);
-    console.log(myReaction);
 
     return (
         <div
@@ -261,7 +258,7 @@ function CommentItem({
                         className="text-[10px] opacity-50 px-1.5 py-0.5 rounded-full bg-slate-700">(izmenjeno)</span>}
                 </div>
 
-                {user.id === myUserId && (
+                {(user.id == myUserId || (user as any)._id == myUserId) && (
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             className="p-1.5 hover:bg-slate-700 rounded-lg text-yellow-500/70 hover:text-yellow-400 transition-colors"
@@ -342,7 +339,7 @@ function CommentItem({
                             {/*<span className="inline-flex items-center justify-center text-lg leading-none align-middle select-none">{emojis.get(emoji)}</span>*/}
                             {/*<span className="inline-flex items-center justify-center text-xl leading-none align-middle select-none transition-transform duration-150 hover:scale-125">{emojis.get(emoji)}</span>*/}
                             <span
-                                className="text-lg leading-none">{ emojis.get(myReaction) || emojis.get(firstEmoji)/* || emojis.get('thumbs_up')*/}</span>
+                                className="text-lg leading-none">{emojis.get(myReaction) || emojis.get(firstEmoji)/* || emojis.get('thumbs_up')*/}</span>
                             <span className="text-slate-400 font-bold">{comment.reactions?.length}</span>
                         </button>
 
