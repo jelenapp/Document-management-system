@@ -7,7 +7,7 @@ import CommentsPanel from "./CommentsPanel";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { UserView } from "../models/user";
-import { useState } from "react";
+import {JSX, useState} from "react";
 import { PanelRightOpen, MessageSquare, LogOut } from "lucide-react";
 
 export default function EditorPage() {

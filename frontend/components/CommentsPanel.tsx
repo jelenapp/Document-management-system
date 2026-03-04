@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useSession} from "next-auth/react";
 import {getRequestSingle, postRequest, putRequest, deleteRequest} from "@/app/api/serverRequests/methods";
 
@@ -33,7 +33,7 @@ type CommentDto = {
 export default function CommentsPanel({fileId}: { fileId: string }) {
 
     const {data} = useSession();
-    const myUserId = data == null ? null : (data.user as any)?.id ?? (data?.user as any)?._id as string;
+    const myUserId = data == null ? "" : (data.user as unknown as User)?.id ?? (data?.user as unknown as {_id: string})?._id;
 
     const [comments, setComments] = useState<CommentDto[]>([]);
     const [newText, setNewText] = useState("");
@@ -198,7 +198,7 @@ function CommentItem({
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(comment.content);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [hoveredReaction, setHoveredReaction] = useState<string | null>(null);
+    // const [hoveredReaction, setHoveredReaction] = useState<string | null>(null);
 
     useEffect(() => setText(comment.content), [comment.content]);
 
@@ -215,21 +215,6 @@ function CommentItem({
 
     let myReaction: string = '';
     let firstEmoji: string = '';
-    // Grupišemo reakcije po emojiju
-    // const groupedReactions = (comment.reactions || []).reduce((acc, reaction) => {
-    //     if (reaction && reaction.reactor) {
-    //
-    //         if (reaction.reactor.id == myUserId)
-    //             myReaction = reaction.emoji;
-    //
-    //         if (!acc[reaction.emoji])
-    //             acc[reaction.emoji] = [];
-    //
-    //         acc[reaction.emoji].push(reaction.reactor.username);
-    //     }
-    //     return acc;
-    // }, {} as Record<string, string[]>);
-
 
     for (const reaction of comment.reactions || []) {
 
@@ -238,7 +223,7 @@ function CommentItem({
             break;
         }
 
-        if (firstEmoji != '') {
+        if (firstEmoji == '') {
             firstEmoji = reaction.reactionType;
         }
     }
@@ -258,7 +243,7 @@ function CommentItem({
                         className="text-[10px] opacity-50 px-1.5 py-0.5 rounded-full bg-slate-700">(izmenjeno)</span>}
                 </div>
 
-                {(user.id == myUserId || (user as any)._id == myUserId) && (
+                {(user.id == myUserId || (user as unknown as {_id: string})._id == myUserId) && (
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             className="p-1.5 hover:bg-slate-700 rounded-lg text-yellow-500/70 hover:text-yellow-400 transition-colors"
@@ -317,7 +302,6 @@ function CommentItem({
             <div className="mt-4 flex flex-wrap gap-2 items-center relative">
                 {/* Reactions*/}
                 {/*{Object.entries(groupedReactions).map(([emoji, users]) => (*/}
-                {/*TODO: Fix reaction removal*/}
                 {(comment.reactions || []).length > 0 && (<div
                         key={myReaction}
                         className="relative"
@@ -331,15 +315,13 @@ function CommentItem({
                                 if (myReaction != "") onReact(myReaction, true)
                             }}
                             className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-xs transition-colors${
-                                // myReaction == emoji ? 
+                                myReaction != "" ? 
                                 "bg-blue-600/30 border-blue-500 text-white"
-                                // : "bg-slate-900/50 border-slate-700 hover:border-slate-500"
+                                : "bg-slate-900/50 border-slate-700 hover:border-slate-500"
                             }`}
                         >
-                            {/*<span className="inline-flex items-center justify-center text-lg leading-none align-middle select-none">{emojis.get(emoji)}</span>*/}
-                            {/*<span className="inline-flex items-center justify-center text-xl leading-none align-middle select-none transition-transform duration-150 hover:scale-125">{emojis.get(emoji)}</span>*/}
                             <span
-                                className="text-lg leading-none">{emojis.get(myReaction) || emojis.get(firstEmoji)/* || emojis.get('thumbs_up')*/}</span>
+                                className="text-lg leading-none">{emojis.get(myReaction) || emojis.get(firstEmoji) || emojis.get('thumbs_up')}</span>
                             <span className="text-slate-400 font-bold">{comment.reactions?.length}</span>
                         </button>
 

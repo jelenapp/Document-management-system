@@ -4,7 +4,7 @@ import { Trash2, FilePlus, FolderPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Folder, FolderOpen, FileText } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { getRequestSingle, postRequest, putRequest, deleteRequest } from "../../src/app/api/serverRequests/methods";
+import { getRequestSingle, postRequest, deleteRequest } from "@/app/api/serverRequests/methods";
 import { UserView } from "../../models/user";
 
 // folder / file
@@ -42,7 +42,7 @@ function FileItem({ node, onRefresh, onSelectFile }: FileItemProps & { onSelectF
   const fetchChildren = async (dirId: string = node.id) => {
     const res = await getRequestSingle(`directories/${dirId}/children&files`);
     if (res.ok) {
-      const payload: any = await res.json();
+      const payload = await res.json();
       const raw = payload?.data ?? payload;
 
       const data = (Array.isArray(raw) ? raw[0] : raw) as FolderResponse | null;
@@ -64,10 +64,10 @@ function FileItem({ node, onRefresh, onSelectFile }: FileItemProps & { onSelectF
   setOpen(!open);
 };
 
-  const handleToggle = async () => {
-    if (!open && isDirectory && !items) await fetchChildren();
-    setOpen(!open);
-  };
+  // const handleToggle = async () => {
+  //   if (!open && isDirectory && !items) await fetchChildren();
+  //   setOpen(!open);
+  // };
 
   const handleAddFile = async () => {
     const fileName = prompt("Enter file name:");
